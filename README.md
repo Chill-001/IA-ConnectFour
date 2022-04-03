@@ -12,7 +12,10 @@ Group members:
   - If there aren't any compositions of 4 pieces and the board is full, we call the draw.
 
  Computer:
-  - For the AI will be using minMax (https://en.wikipedia.org/wiki/Minimax) for calculating the best outcome possible for the given board.
+  - For the AI will be using:
+        . MinMax (https://en.wikipedia.org/wiki/Minimax);
+        . Alpha-Beta (https://en.wikipedia.org/wiki/Alpha%E2%80%93beta_pruning);
+        . MCTS (https://en.wikipedia.org/wiki/Monte_Carlo_tree_search);
   - We also will limit the depth of the search so the player has a chance to win and to make the game overall more fun and fair.
   
  Input/Output:
