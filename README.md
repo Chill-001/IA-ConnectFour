@@ -13,9 +13,9 @@ Group members:
 
  Computer:
   - For the AI will be using:
-        - MinMax (https://en.wikipedia.org/wiki/Minimax);
-        - Alpha-Beta (https://en.wikipedia.org/wiki/Alpha%E2%80%93beta_pruning);
-        - MCTS (https://en.wikipedia.org/wiki/Monte_Carlo_tree_search);
+    - MinMax (https://en.wikipedia.org/wiki/Minimax);
+    - Alpha-Beta (https://en.wikipedia.org/wiki/Alpha%E2%80%93beta_pruning);
+    - MCTS (https://en.wikipedia.org/wiki/Monte_Carlo_tree_search);
   - We also will limit the depth of the search so the player has a chance to win and to make the game overall more fun and fair.
   
  Input/Output:
