@@ -9,10 +9,14 @@
 #define COL 6
 
 bool turn;
+int algo;
+char starter;
+
+void print_initial_info();
 /**
  * Class Board will have:
  *  - Values of the current configuration of the board
- *  - Values blue and red have the current amount of blue tokens and red tokens in the board
+ *  - Values blue and red have the current amount of blue points and red points in the board
  */
 class Board {
     public:
@@ -27,7 +31,38 @@ class Board {
         bool isFinished();
         void play();
         void update(int col);
+        void printBoard();
 };
+
+int main() {
+    Board board;
+
+    print_initial_info();
+
+    turn = (starter == 'c');
+
+    int col, i = 0;
+    while (/*!board.isFinished()*/ i < 2) {
+        if (turn) {
+            printf("| Computer's turn: \n");
+            board.play();
+        } else {
+            // player plays
+            printf("| Your turn\n"
+            "| Choose a column: ");
+            scanf("%d", &col);
+            board.update(col);
+        }
+        printf("| Turn [%d]\n", turn);
+        printf("|\n");
+        turn = !turn;
+        i++;
+        board.printBoard();
+        printf("|\n");
+    }
+
+    return 0;
+}
 
 Board::Board() {
     setO(configuration);
@@ -45,40 +80,41 @@ void Board::play() {
 }
 
 void Board::update(int col) {
-    if (turn) {
+    /*if (turn) {
         configuration[currentBalls[col]*ROW + col];
     } else {
 
     }
-    currentBalls[col]++;
+    currentBalls[col]++;*/
     return;
 }
 
-int main() {
-    Board board;
-    char starter;
-
-    printf("| Player will always be blue (B), computer is red (R)\n");
-    printf("| Define who starts the game \n|\n");
-    printf("| p - Player Starts\n");
-    printf("| c - Computer Starts\n");
-    printf("| input: ");
-    scanf("%c", &starter);
-
-    if (starter == 'c') turn = true;
-    else turn = false;
-
-    int col;
-    while (!board.isFinished()) {
-        if (turn) {
-            board.play();
-        } else {
-            // player plays
-            scanf("%d", &col);
-            board.update(col);
-        }
-        turn = !turn;
+void Board::printBoard() {
+    for (int i = 0; i < SIZE; i++) {
+        if (i != 0 && i%7 == 0) printf("\n");
+        printf("| %c |", configuration[i]);
     }
+    printf("\n");
+}
 
-    return 0;
+void print_initial_info() {
+    printf("| Player will always be blue (B), computer is red (R)\n"
+    "| Define who starts the game \n|\n"
+    "| p - Player Starts\n"
+    "| c - Computer Starts\n");
+    do {
+        printf("| Who starts: ");
+        scanf(" %c[^\n]", &starter);
+    } while (starter != 'c' && starter != 'p');
+    printf("|\n");
+
+    printf("| Choose the algorithm for the AI:\n"
+    "|\t1 - MinMax\n"
+    "|\t2 - Alpha-Beta\n"
+    "|\t3 - MCTS\n");
+    do {
+        printf("| Enter an option: ");
+        scanf("%d", &algo);
+    } while (algo < 1 || algo > 3);
+    printf("|\n");
 }
