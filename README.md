@@ -1,9 +1,9 @@
 # IA-ConnectFour
 Project from an Artificial Inteligence class.
 Group members:
-  Hugo Silva 202004447
-  João Malheiro 202004449
-  Tomás Ferreira 202006594
+  - Hugo Silva 202004447
+  - João Malheiro 202004449
+  - Tomás Ferreira 202006594
   
  Description:
   - The project consists in creating an interactive version of the connect four game (https://en.wikipedia.org/wiki/Connect_Four);
@@ -13,9 +13,9 @@ Group members:
 
  Computer:
   - For the AI will be using:
-        . MinMax (https://en.wikipedia.org/wiki/Minimax);
-        . Alpha-Beta (https://en.wikipedia.org/wiki/Alpha%E2%80%93beta_pruning);
-        . MCTS (https://en.wikipedia.org/wiki/Monte_Carlo_tree_search);
+        - MinMax (https://en.wikipedia.org/wiki/Minimax);
+        - Alpha-Beta (https://en.wikipedia.org/wiki/Alpha%E2%80%93beta_pruning);
+        - MCTS (https://en.wikipedia.org/wiki/Monte_Carlo_tree_search);
   - We also will limit the depth of the search so the player has a chance to win and to make the game overall more fun and fair.
   
  Input/Output:
