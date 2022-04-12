@@ -1,4 +1,8 @@
-//BASE CODE ADAPTED FROM https://github.com/bryanjsanchez/ConnectFour/blob/master/connectfour.py
+/**
+ * CONNECT FOUR BY Hugo Silva, João Malheiro, Tomás Ferreira
+ * The base code of the functions and classes was heavily inspired by: https://github.com/bryanjsanchez/ConnectFour
+ * Project for AI class 
+ */
 #include <iostream>
 #include <string.h>
 #include <vector>
@@ -15,24 +19,31 @@
 
 using namespace std;
 
+/**
+ * Board class
+ * @param board the literal representation of the game board
+ * @param colTokens has the information about the amount of tokens each column of the board has
+ * @param (AI/PLAYERpts) represent the amount of points each player has on a certain board
+ */
 class Board {
     public:
         char board[ROW][COL];
         int colTokens[COL];
-        int AIpts, PLAYERpts, totalPts;
+        int AIpts, PLAYERpts;
 
+        /// Simple Constructor
         Board() {
             setO(this->board);
             set0(colTokens);
-            AIpts = 0; PLAYERpts = 0, totalPts = 0;
+            AIpts = 0; PLAYERpts = 0;
         }
 
+        /// Copies the current board to a new one (reseting points)
         Board copy() {
             Board copy;
 
-            copy.AIpts     = this->AIpts;
-            copy.PLAYERpts = this->PLAYERpts;
-            copy.totalPts  = this->totalPts;
+            copy.AIpts     = 0;
+            copy.PLAYERpts = 0;
 
             // copy board
             for (int i = 0; i < ROW; i++) {
@@ -49,35 +60,73 @@ class Board {
 };
 
 //class related functions
+/**
+ * puts the given player token on the given column of a given board
+ * @return true if it was possible to update, false otherwise 
+ */
 bool  updateBoard(Board* board, int col, char player);
+
+/**
+ * Verifies if the current board is a terminal one where the ai or the player has won  
+ * @return true if its a winning board, false otherwise
+ */
 bool  verifyWin(Board board, char player);
+
+/**
+ * Verifies if the board is a terminal board (win or draw) 
+ * @return true if its terminal, false otherwise 
+ */
 bool  isTerminal(Board board);
+
+/**
+ * Verifies if the current column given is valid for the current board
+ * @return true if column valid, false otherwise 
+ */
 bool  isValidCol(Board board, int col);
-int   score(Board* board, char player);
-Board cloneAndPlace(Board, char player, int col);
+
+/// Calculates the points that the given player has on the given board
+void   score(Board* board, char player);
+
+/**
+ * Clones the given board and puts a new token on the given column (generator of childs in short)
+ * @return a new child board originated fromthe given board 
+ */
+Board cloneAndPlace(Board board, char player, int col);
+
+/**
+ * Given a board, calculates all the columns that can receive new tokens
+ * @return vector<int> that has all the indexes possible to add tokens
+ */
 vector<int> validPos(Board board);
 
 //aux functions
+/// Simple IO function to read which player starts playing
 char choose_starting_player();
+
+/// Simple IO function to read which algorithm will be used
 int  choose_search_algorithm();
+
+/// Simple IO function to read how many searches the search algorithm needs to do
+int  choose_search_depth();
+
+/// To be used by score, returns amount of points depending on n value
 int  calcPoints(int n, int sum, char player);
+
+/// Simple IO function to draw the board
 void draw_board(Board board);
 
 //implementation
 int main() {
     Board board;
-    draw_board(board);
-    Board child1 = cloneAndPlace(board, AI, 1);
-    draw_board(child1);
-    /*
     char player = choose_starting_player();
+    int algo    = choose_search_algorithm();
+    int depth   = choose_search_depth(); 
 
     int moves = 0;
-    int algo  = choose_search_algorithm();
-
     bool isFinished = false;
     bool turn       = (player == 'p');
 
+    printf("| -=-=-=-=-=-=-=-=-=-=-=-=-=-\n");
     draw_board(board);
 
     int col;
@@ -88,6 +137,7 @@ int main() {
                 printf("| Input a column: ");
                 scanf("%d", &col);
             }while (!updateBoard(&board, col, PLAYER));
+            score(&board, PLAYER);
         } else {
             printf("|\n| $ AI's turn $\n");
 
@@ -104,15 +154,17 @@ int main() {
                     //col = do mcts
                     break;
             }
-
             updateBoard(&board, col, AI);
+            score(&board, AI);
         }
         isFinished = isTerminal(board);
         draw_board(board);
         turn = !turn;
+        moves++;
     }
     (turn)? printf("|\n| AI Won!\n") : printf("|\n| You Won!\n");
-    printf("|\n| $ THANKS FOR PLAYING $\n\n");*/
+    printf("| %d Moves done!\n", moves);
+    printf("|\n| $ THANKS FOR PLAYING $\n\n");
     return 0;
 }
 
@@ -161,11 +213,6 @@ bool verifyWin(Board board, char player) {
                     return true;
         }
     }
-
-    int i;
-    for (i = 0; i < COL; i++) if (board.colTokens[i] != 5) break;
-    if (i == COL) return true; // draw
-
     return false;
 }
 
@@ -176,49 +223,111 @@ bool isTerminal(Board board) {
 
 bool isValidCol(Board board, int col) { return board.board[0][col-1] == EMPTY; }
 
-int score(Board* board, char player) {
-    int n = 0, sum = 0;
-    int pWeigth = (player == AI)? 1 : -1;
+void score(Board* board, char player) {
+    int sum = 0, n = 0;
     // check horizontal
     for (int row = ROW-1; row >= 0; row--) {
         for (int col = 0; col <= LIMIT; col++) {
-            // still need to test this better
             for (int k = 0; k < 4; k++) {
                 if (board->board[row][col+k] != player && board->board[row][col+k] != EMPTY) {
                     sum = 0;
                     n = 0;
                     break;
-                } else if (board->board[row+k][col+k] == EMPTY) {
+                } else if (board->board[row][col+k] == EMPTY) {
                     sum += calcPoints(n, sum, player);
                     n = 0;
                 } else {
                     n++;
                 }
             }
-            if (n == 4) return 512*pWeigth; // winner found;
+            if (n == 4) {
+                if (player == AI) board->AIpts = 512;
+                else board->PLAYERpts = -512;
+                return;
+            } // winner found;
             else if (player == AI) board->AIpts += sum + calcPoints(n, sum, player);
             else if (player == PLAYER) board->PLAYERpts += sum + calcPoints(n, sum, player);
+            sum = 0; n = 0;
         }
     }
 
     // check vertical
     for (int row = ROW-1; row >= LIMIT; row--) {
         for (int col = 0; col < COL; col++) {
+            for (int k = 0; k < 4; k++) {
+                if (board->board[row-k][col] != player && board->board[row-k][col] != EMPTY) {
+                    sum = 0;
+                    n = 0;
+                    break;
+                } else if (board->board[row-k][col] == EMPTY) {
+                    sum += calcPoints(n, sum, player);
+                    n = 0;
+                } else {
+                    n++;
+                }
+            }
+            if (n == 4) {
+                if (player == AI) board->AIpts = 512;
+                else board->PLAYERpts = -512;
+                return;
+            } // winner found;
+            else if (player == AI) board->AIpts += sum + calcPoints(n, sum, player);
+            else if (player == PLAYER) board->PLAYERpts += sum + calcPoints(n, sum, player);
+            sum = 0; n = 0;
         }
     }
 
     // left to right diagonal
     for (int row = ROW-1; row >= LIMIT; row--) {
         for (int col = 0; col <= LIMIT; col++) {
+            for (int k = 0; k < 4; k++) {
+                if (board->board[row-k][col+k] != player && board->board[row-k][col+k] != EMPTY) {
+                    sum = 0;
+                    n = 0;
+                    break;
+                } else if (board->board[row-k][col+k] == EMPTY) {
+                    sum += calcPoints(n, sum, player);
+                    n = 0;
+                } else {
+                    n++;
+                }
+            }
+            if (n == 4) {
+                if (player == AI) board->AIpts = 512;
+                else board->PLAYERpts = -512;
+                return;
+            } // winner found;
+            else if (player == AI) board->AIpts += sum + calcPoints(n, sum, player);
+            else if (player == PLAYER) board->PLAYERpts += sum + calcPoints(n, sum, player);
+            sum = 0; n = 0;
         }
     }
 
     // right to left diagonal
     for (int row = ROW-1; row >= LIMIT; row--) {
         for (int col = COL-1; col >= LIMIT; col--) {
+            for (int k = 0; k < 4; k++) {
+                if (board->board[row-k][col-k] != player && board->board[row-k][col-k] != EMPTY) {
+                    sum = 0;
+                    n = 0;
+                    break;
+                } else if (board->board[row-k][col-k] == EMPTY) {
+                    sum += calcPoints(n, sum, player);
+                    n = 0;
+                } else {
+                    n++;
+                }
+            }
+            if (n == 4) {
+                if (player == AI) board->AIpts = 512;
+                else board->PLAYERpts = -512;
+                return;
+            } // winner found;
+            else if (player == AI) board->AIpts += sum + calcPoints(n, sum, player);
+            else if (player == PLAYER) board->PLAYERpts += sum + calcPoints(n, sum, player);
+            sum = 0; n = 0;
         }
     }
-    return 0;
 }
 
 Board cloneAndPlace(Board board, char player, int col) {
@@ -253,13 +362,32 @@ char choose_starting_player() {
 int choose_search_algorithm() {
     int mode;
     printf("| Choose algorithm for the AI:\n"
-    "|\t1 - MinMax\n");
+    "|\t1 - MinMax\n"
+    "|\t2 - Alpha-Beta\n"
+    "|\t3 - MCTS\n");
     
     do {
         printf("| algo: ");
         scanf("%d", &mode);
-    } while (mode != 1);
+    } while (mode < 1 || mode > 3);
+    printf("|\n");
     return mode;
+}
+
+int  choose_search_depth() {
+    int depth;
+    printf("| Choose difficulty:\n"
+    "|\t1 - Easy\n"
+    "|\t2 - Normal\n"
+    "|\t3 - Hard\n"
+    "|\t4 - Very Hard\n");
+
+    do {
+        printf("| diff: ");
+        scanf("%d", &depth);
+    } while (depth < 1 || depth > 4);
+    printf("|\n");
+    return 3*depth;
 }
 
 int calcPoints(int n, int sum, char player) {
@@ -267,19 +395,16 @@ int calcPoints(int n, int sum, char player) {
     switch (n) {
         case 1:
             return 1*pWeight;
-            break;
         case 2:
             return 10*pWeight;
-            break;
         case 3:
             return 50*pWeight;
-            break;
     }
     return 0;
 }
 
 void draw_board(Board board) {
-    printf("|\n|");
+    printf("|");
     // Column numbers
     for (int n = 0; n < COL; n++) {
         if (n == 0) printf(" %d ", n+1);
@@ -295,4 +420,5 @@ void draw_board(Board board) {
         }
         printf("\n");
     }
+    printf("| -=-=-=-=-=-=-=-=-=-=-=-=-=-\n");
 }
