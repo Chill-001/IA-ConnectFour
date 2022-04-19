@@ -402,7 +402,7 @@ int calcPoints(int n, int sum, char player) {
     }
     return 0;
 }
-
+/*MIN MAX AQUI*/
 void draw_board(Board board) {
     printf("|");
     // Column numbers
